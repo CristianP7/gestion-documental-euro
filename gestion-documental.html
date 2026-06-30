@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión Documental Laboral · Panel de Control</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: {
+            50: '#eef4ff',
+            100: '#d9e6ff',
+            200: '#b3ccff',
+            300: '#80a8ff',
+            400: '#4d7fff',
+            500: '#2056e8',
+            600: '#1641c2',
+            700: '#123399',
+            800: '#0f2a7a',
+            900: '#0c2161'
+          }
+        },
+        fontFamily: {
+          sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background-color: #b3ccff; border-radius: 9999px; }
+  .fade-in { animation: fadeIn .25s ease-out; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(4px);} to {opacity:1; transform: translateY(0);} }
+  .traffic-light { width: 1.1rem; height: 1.1rem; border-radius: 9999px; display:inline-block; box-shadow: inset 0 0 0 2px rgba(0,0,0,.06); }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="w-64 shrink-0 bg-brand-900 text-brand-50 flex flex-col">
+    <div class="px-6 py-6 border-b border-brand-800">
+      <h1 class="text-lg font-bold tracking-tight leading-snug">Gestión Documental</h1>
+      <p class="text-xs text-brand-300 mt-0.5">Panel laboral · RR.HH.</p>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 space-y-1">
+      <button data-view="trabajadores" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a4 4 0 10-4-4"/></svg>
+        Trabajadores y Alertas
+      </button>
+      <button data-view="liquidaciones" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        Liquidaciones Mensuales
+      </button>
+      <button data-view="documentos" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+        Estado de Documentos
+      </button>
+    </nav>
+
+    <div class="px-4 py-4 border-t border-brand-800">
+      <button id="googleAuthBtn" class="w-full flex items-center justify-center gap-2 bg-white text-slate-700 text-sm font-semibold px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors shadow-sm">
+        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0012 23z"/><path fill="#FBBC05" d="M5.84 14.1A6.6 6.6 0 015.5 12c0-.73.13-1.43.34-2.1V7.06H2.18A11 11 0 001 12c0 1.77.42 3.45 1.18 4.94l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 002.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+        <span id="googleAuthLabel">Conectar con Google Calendar</span>
+      </button>
+      <p id="googleAuthStatus" class="text-[11px] text-brand-300 mt-2 text-center">No conectado</p>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="flex-1 overflow-y-auto scrollbar-thin">
+
+    <!-- ---------- TOAST ---------- -->
+    <div id="toast" class="hidden fixed top-5 right-5 z-50 max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium fade-in"></div>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 1: TRABAJADORES Y ALERTAS                                -->
+    <!-- ============================================================ -->
+    <section id="view-trabajadores" class="view-section p-8 max-w-6xl mx-auto fade-in">
+      <header class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-900">Trabajadores y Alertas de Contrato</h2>
+        <p class="text-sm text-slate-500 mt-1">Registra trabajadores y programa automáticamente un recordatorio 7 días antes del vencimiento de su contrato en Google Calendar.</p>
+      </header>
+
+      <!-- Formulario -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
+        <h3 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-wide">Nuevo trabajador</h3>
+        <form id="workerForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Nombre completo</label>
+            <input required type="text" id="w-nombre" placeholder="Ej: Juan Pérez Soto" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">RUT / DNI</label>
+            <input required type="text" id="w-rut" placeholder="Ej: 12.345.678-9" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Cargo</label>
+            <input required type="text" id="w-cargo" placeholder="Ej: Conductor" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Fecha inicio contrato</label>
+            <input required type="date" id="w-inicio" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Fecha vencimiento contrato</label>
+            <input required type="date" id="w-vencimiento" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Correo electrónico</label>
+            <input required type="email" id="w-email" placeholder="correo@empresa.cl" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400">
+          </div>
+
+          <div class="md:col-span-3 flex items-center justify-between pt-2 border-t border-slate-100 mt-2">
+            <p class="text-xs text-slate-400">Al guardar, se intentará crear automáticamente un recordatorio en Google Calendar (7 días antes del vencimiento).</p>
+            <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shrink-0">
+              Guardar trabajador
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabla -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-slate-700 uppercase tracking-wide">Trabajadores registrados</h3>
+          <span id="workerCount" class="text-xs text-slate-400">0 registrados</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+              <tr>
+                <th class="text-left px-6 py-3 font-medium">Nombre</th>
+                <th class="text-left px-6 py-3 font-medium">RUT/DNI</th>
+                <th class="text-left px-6 py-3 font-medium">Cargo</th>
+                <th class="text-left px-6 py-3 font-medium">Inicio</th>
+                <th class="text-left px-6 py-3 font-medium">Vencimiento</th>
+                <th class="text-left px-6 py-3 font-medium">Alerta Calendar</th>
+                <th class="text-right px-6 py-3 font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="workerTableBody" class="divide-y divide-slate-100"></tbody>
+          </table>
+          <p id="workerEmptyState" class="text-center text-sm text-slate-400 py-10 hidden">Aún no hay trabajadores registrados. Usa el formulario superior para añadir el primero.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 2: LIQUIDACIONES MENSUALES                               -->
+    <!-- ============================================================ -->
+    <section id="view-liquidaciones" class="view-section hidden p-8 max-w-6xl mx-auto fade-in">
+      <header class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-900">Control de Liquidaciones Mensuales</h2>
+        <p class="text-sm text-slate-500 mt-1">Marca manualmente qué trabajadores ya firmaron su liquidación de sueldo en cada mes. Se guarda automáticamente en este navegador.</p>
+      </header>
+
+      <div class="flex items-center gap-3 mb-6">
+        <label class="text-sm font-medium text-slate-600">Año:</label>
+        <select id="liqYearSelect" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"></select>
+      </div>
+
+      <!-- Meses -->
+      <div id="monthGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8"></div>
+
+      <!-- Detalle del mes seleccionado -->
+      <div id="liqDetail" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hidden">
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h3 id="liqDetailTitle" class="text-sm font-semibold text-slate-700 uppercase tracking-wide"></h3>
+          <span id="liqProgress" class="text-xs text-slate-400"></span>
+        </div>
+        <div class="divide-y divide-slate-100" id="liqWorkerList"></div>
+        <p id="liqEmptyState" class="text-center text-sm text-slate-400 py-10 hidden">No hay trabajadores registrados todavía. Agrégalos en el módulo "Trabajadores y Alertas".</p>
+      </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- VIEW 3: ESTADO DE DOCUMENTOS MENSUALES                        -->
+    <!-- ============================================================ -->
+    <section id="view-documentos" class="view-section hidden p-8 max-w-6xl mx-auto fade-in">
+      <header class="mb-6">
+        <h2 class="text-2xl font-bold text-slate-900">Estado de Documentos Mensuales</h2>
+        <p class="text-sm text-slate-500 mt-1">Controla con un semáforo visual si el Libro de Asistencia Mensual de la empresa ya fue generado y cerrado.</p>
+      </header>
+
+      <div class="flex items-center gap-3 mb-6">
+        <label class="text-sm font-medium text-slate-600">Año:</label>
+        <select id="docYearSelect" class="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"></select>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+            <tr>
+              <th class="text-left px-6 py-3 font-medium">Mes</th>
+              <th class="text-left px-6 py-3 font-medium">Libro de Asistencia Mensual</th>
+              <th class="text-left px-6 py-3 font-medium">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="docTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center gap-6 mt-4 text-xs text-slate-500">
+        <span class="flex items-center gap-2"><span class="traffic-light bg-red-500"></span> Pendiente</span>
+        <span class="flex items-center gap-2"><span class="traffic-light bg-green-500"></span> Entregado</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIGURACIÓN GOOGLE API (rellenar con tus credenciales reales)
+   - CLIENT_ID: se obtiene en Google Cloud Console > Credenciales > OAuth 2.0
+   - API_KEY:   se obtiene en Google Cloud Console > Credenciales > Clave de API
+   - Debes habilitar "Google Calendar API" en tu proyecto de Google Cloud.
+   ===================================================================== */
+const GOOGLE_CONFIG = {
+  CLIENT_ID: 'TU_CLIENT_ID_AQUI.apps.googleusercontent.com',
+  API_KEY:   'TU_API_KEY_AQUI',
+  DISCOVERY_DOC: 'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
+  SCOPES: 'https://www.googleapis.com/auth/calendar.events'
+};
+
+let gapiInited = false;
+let gisInited = false;
+let tokenClient = null;
+let isGoogleSignedIn = false;
+
+/* ---------------------------------------------------------------------
+   Carga diferida de los scripts de Google (gapi + gis)
+   --------------------------------------------------------------------- */
+function loadGoogleScripts() {
+  const gapiScript = document.createElement('script');
+  gapiScript.src = 'https://apis.google.com/js/api.js';
+  gapiScript.onload = gapiLoaded;
+  gapiScript.onerror = () => console.warn('No se pudo cargar gapi (revisa conexión / dominios permitidos).');
+  document.head.appendChild(gapiScript);
+
+  const gisScript = document.createElement('script');
+  gisScript.src = 'https://accounts.google.com/gsi/client';
+  gisScript.onload = gisLoaded;
+  gisScript.onerror = () => console.warn('No se pudo cargar Google Identity Services.');
+  document.head.appendChild(gisScript);
+}
+
+function gapiLoaded() {
+  gapi.load('client', initializeGapiClient);
+}
+
+async function initializeGapiClient() {
+  try {
+    await gapi.client.init({
+      apiKey: GOOGLE_CONFIG.API_KEY,
+      discoveryDocs: [GOOGLE_CONFIG.DISCOVERY_DOC],
+    });
+    gapiInited = true;
+  } catch (err) {
+    console.warn('Error inicializando gapi.client. Verifica API_KEY.', err);
+  }
+}
+
+function gisLoaded() {
+  try {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CONFIG.CLIENT_ID,
+      scope: GOOGLE_CONFIG.SCOPES,
+      callback: '', // se asigna dinámicamente al solicitar el token
+    });
+    gisInited = true;
+  } catch (err) {
+    console.warn('Error inicializando Google Identity Services. Verifica CLIENT_ID.', err);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Botón "Conectar con Google Calendar"
+   --------------------------------------------------------------------- */
+const googleAuthBtn = document.getElementById('googleAuthBtn');
+const googleAuthLabel = document.getElementById('googleAuthLabel');
+const googleAuthStatus = document.getElementById('googleAuthStatus');
+
+googleAuthBtn.addEventListener('click', () => {
+  if (isGoogleSignedIn) {
+    // Cerrar sesión
+    const token = gapi.client.getToken();
+    if (token !== null) {
+      google.accounts.oauth2.revoke(token.access_token);
+      gapi.client.setToken('');
+    }
+    isGoogleSignedIn = false;
+    updateGoogleAuthUI();
+    showToast('Sesión de Google Calendar cerrada.', 'info');
+    return;
+  }
+
+  if (!gapiInited || !gisInited) {
+    showToast('Configura CLIENT_ID y API_KEY de Google en el código antes de conectar.', 'error');
+    return;
+  }
+
+  tokenClient.callback = (resp) => {
+    if (resp.error !== undefined) {
+      showToast('No se pudo autorizar el acceso a Google Calendar.', 'error');
+      return;
+    }
+    isGoogleSignedIn = true;
+    updateGoogleAuthUI();
+    showToast('Conectado con Google Calendar correctamente.', 'success');
+  };
+
+  if (gapi.client.getToken() === null) {
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  } else {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+});
+
+function updateGoogleAuthUI() {
+  if (isGoogleSignedIn) {
+    googleAuthLabel.textContent = 'Desconectar Google Calendar';
+    googleAuthStatus.textContent = 'Conectado';
+    googleAuthStatus.classList.remove('text-brand-300');
+    googleAuthStatus.classList.add('text-green-300');
+  } else {
+    googleAuthLabel.textContent = 'Conectar con Google Calendar';
+    googleAuthStatus.textContent = 'No conectado';
+    googleAuthStatus.classList.add('text-brand-300');
+    googleAuthStatus.classList.remove('text-green-300');
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Crear evento de recordatorio en Google Calendar
+   (7 días antes del vencimiento del contrato)
+   --------------------------------------------------------------------- */
+async function crearAlertaCalendar(trabajador) {
+  if (!isGoogleSignedIn) {
+    showToast('Trabajador guardado localmente. Conéctate a Google Calendar para programar la alerta automática.', 'info');
+    return { creado: false, motivo: 'sin_sesion' };
+  }
+
+  const fechaAlerta = calcularFechaAlerta(trabajador.vencimiento);
+
+  const evento = {
+    summary: `Renovar Contrato: ${trabajador.nombre}`,
+    description: `Recordatorio automático: el contrato de ${trabajador.nombre} (RUT ${trabajador.rut}, cargo ${trabajador.cargo}) vence el ${formatearFecha(trabajador.vencimiento)}. Gestionar renovación o término.`,
+    start: { date: fechaAlerta },
+    end: { date: fechaAlerta },
+    reminders: {
+      useDefault: false,
+      overrides: [{ method: 'popup', minutes: 9 * 60 }]
+    }
+  };
+
+  try {
+    const response = await gapi.client.calendar.events.insert({
+      calendarId: 'primary',
+      resource: evento
+    });
+    showToast(`Alerta creada en Google Calendar para ${trabajador.nombre} (${fechaAlerta}).`, 'success');
+    return { creado: true, eventId: response.result.id };
+  } catch (err) {
+    console.error(err);
+    showToast('No se pudo crear el evento en Google Calendar.', 'error');
+    return { creado: false, motivo: 'error_api' };
+  }
+}
+
+function calcularFechaAlerta(fechaVencimientoStr) {
+  const fecha = new Date(fechaVencimientoStr + 'T00:00:00');
+  fecha.setDate(fecha.getDate() - 7);
+  return fecha.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+function formatearFecha(fechaStr) {
+  const fecha = new Date(fechaStr + 'T00:00:00');
+  return fecha.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+/* =====================================================================
+   NAVEGACIÓN ENTRE VISTAS
+   ===================================================================== */
+const navButtons = document.querySelectorAll('.nav-btn');
+const viewSections = document.querySelectorAll('.view-section');
+
+function setActiveView(viewName) {
+  viewSections.forEach(sec => sec.classList.toggle('hidden', sec.id !== `view-${viewName}`));
+  navButtons.forEach(btn => {
+    const active = btn.dataset.view === viewName;
+    btn.classList.toggle('bg-brand-700', active);
+    btn.classList.toggle('text-white', active);
+    btn.classList.toggle('text-brand-200', !active);
+    btn.classList.toggle('hover:bg-brand-800', !active);
+  });
+  if (viewName === 'liquidaciones') renderLiquidacionesView();
+  if (viewName === 'documentos') renderDocumentosView();
+}
+
+navButtons.forEach(btn => btn.addEventListener('click', () => setActiveView(btn.dataset.view)));
+
+/* =====================================================================
+   TOAST DE NOTIFICACIONES
+   ===================================================================== */
+const toastEl = document.getElementById('toast');
+let toastTimeout = null;
+
+function showToast(message, type = 'info') {
+  const colors = {
+    success: 'bg-green-600 text-white',
+    error: 'bg-red-600 text-white',
+    info: 'bg-slate-800 text-white'
+  };
+  toastEl.className = `fixed top-5 right-5 z-50 max-w-sm px-4 py-3 rounded-lg shadow-lg text-sm font-medium fade-in ${colors[type]}`;
+  toastEl.textContent = message;
+  toastEl.classList.remove('hidden');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toastEl.classList.add('hidden'), 4500);
+}
+
+/* =====================================================================
+   MÓDULO 1: TRABAJADORES (persistencia en localStorage)
+   ===================================================================== */
+const STORAGE_KEYS = {
+  WORKERS: 'gd_workers',
+  LIQUIDACIONES: 'gd_liquidaciones',
+  DOCUMENTOS: 'gd_documentos'
+};
+
+function getWorkers() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.WORKERS) || '[]');
+}
+function saveWorkers(workers) {
+  localStorage.setItem(STORAGE_KEYS.WORKERS, JSON.stringify(workers));
+}
+
+const workerForm = document.getElementById('workerForm');
+const workerTableBody = document.getElementById('workerTableBody');
+const workerEmptyState = document.getElementById('workerEmptyState');
+const workerCount = document.getElementById('workerCount');
+
+workerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('w-nombre').value.trim();
+  const rut = document.getElementById('w-rut').value.trim();
+  const cargo = document.getElementById('w-cargo').value.trim();
+  const inicio = document.getElementById('w-inicio').value;
+  const vencimiento = document.getElementById('w-vencimiento').value;
+  const email = document.getElementById('w-email').value.trim();
+
+  if (new Date(vencimiento) <= new Date(inicio)) {
+    showToast('La fecha de vencimiento debe ser posterior a la fecha de inicio.', 'error');
+    return;
+  }
+
+  const trabajador = {
+    id: 'w_' + Date.now(),
+    nombre, rut, cargo, inicio, vencimiento, email,
+    alertaCreada: false,
+    fechaAlerta: calcularFechaAlerta(vencimiento)
+  };
+
+  const submitBtn = workerForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Guardando...';
+
+  const resultadoAlerta = await crearAlertaCalendar(trabajador);
+  trabajador.alertaCreada = !!resultadoAlerta.creado;
+
+  const workers = getWorkers();
+  workers.push(trabajador);
+  saveWorkers(workers);
+
+  renderWorkerTable();
+  workerForm.reset();
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Guardar trabajador';
+
+  if (resultadoAlerta.creado) {
+    showToast(`Trabajador "${nombre}" guardado y alerta programada.`, 'success');
+  } else if (resultadoAlerta.motivo !== 'sin_sesion') {
+    showToast(`Trabajador "${nombre}" guardado (sin alerta automática).`, 'info');
+  }
+});
+
+function renderWorkerTable() {
+  const workers = getWorkers();
+  workerCount.textContent = `${workers.length} registrado${workers.length === 1 ? '' : 's'}`;
+  workerEmptyState.classList.toggle('hidden', workers.length > 0);
+
+  workerTableBody.innerHTML = workers.map(w => `
+    <tr class="hover:bg-slate-50">
+      <td class="px-6 py-3 font-medium text-slate-800">${escapeHtml(w.nombre)}</td>
+      <td class="px-6 py-3 text-slate-600">${escapeHtml(w.rut)}</td>
+      <td class="px-6 py-3 text-slate-600">${escapeHtml(w.cargo)}</td>
+      <td class="px-6 py-3 text-slate-600">${formatearFecha(w.inicio)}</td>
+      <td class="px-6 py-3 text-slate-600">${formatearFecha(w.vencimiento)}</td>
+      <td class="px-6 py-3">
+        ${w.alertaCreada
+          ? `<span class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded-full">● Programada</span>`
+          : `<span class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">● Pendiente</span>`
+        }
+      </td>
+      <td class="px-6 py-3 text-right">
+        <button data-id="${w.id}" class="retry-alert-btn text-xs font-medium text-brand-600 hover:text-brand-800 mr-3">Reintentar alerta</button>
+        <button data-id="${w.id}" class="delete-worker-btn text-xs font-medium text-red-500 hover:text-red-700">Eliminar</button>
+      </td>
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('.delete-worker-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const updated = getWorkers().filter(w => w.id !== id);
+      saveWorkers(updated);
+      renderWorkerTable();
+      showToast('Trabajador eliminado.', 'info');
+    });
+  });
+
+  document.querySelectorAll('.retry-alert-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const workers = getWorkers();
+      const trabajador = workers.find(w => w.id === id);
+      if (!trabajador) return;
+      const resultado = await crearAlertaCalendar(trabajador);
+      trabajador.alertaCreada = !!resultado.creado;
+      saveWorkers(workers);
+      renderWorkerTable();
+    });
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* =====================================================================
+   MÓDULO 2: LIQUIDACIONES MENSUALES (checklist + localStorage)
+   ===================================================================== */
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let liqSelectedYear = new Date().getFullYear();
+let liqSelectedMonthIndex = null;
+
+function getLiquidaciones() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.LIQUIDACIONES) || '{}');
+}
+function saveLiquidaciones(data) {
+  localStorage.setItem(STORAGE_KEYS.LIQUIDACIONES, JSON.stringify(data));
+}
+
+function populateYearSelect(selectEl, currentYear) {
+  selectEl.innerHTML = '';
+  for (let y = currentYear - 2; y <= currentYear + 3; y++) {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    if (y === currentYear) opt.selected = true;
+    selectEl.appendChild(opt);
+  }
+}
+
+const liqYearSelect = document.getElementById('liqYearSelect');
+populateYearSelect(liqYearSelect, liqSelectedYear);
+liqYearSelect.addEventListener('change', () => {
+  liqSelectedYear = parseInt(liqYearSelect.value, 10);
+  liqSelectedMonthIndex = null;
+  renderLiquidacionesView();
+});
+
+function renderLiquidacionesView() {
+  const monthGrid = document.getElementById('monthGrid');
+  monthGrid.innerHTML = MESES.map((mes, idx) => `
+    <button data-month="${idx}" class="month-btn px-4 py-3 rounded-lg text-sm font-medium border transition-colors text-left
+      ${liqSelectedMonthIndex === idx ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-700 border-slate-200 hover:border-brand-300'}">
+      ${mes}
+      <div class="text-[11px] mt-0.5 ${liqSelectedMonthIndex === idx ? 'text-brand-100' : 'text-slate-400'}">${getMonthProgressLabel(idx)}</div>
+    </button>
+  `).join('');
+
+  document.querySelectorAll('.month-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      liqSelectedMonthIndex = parseInt(btn.dataset.month, 10);
+      renderLiquidacionesView();
+    });
+  });
+
+  const liqDetail = document.getElementById('liqDetail');
+  if (liqSelectedMonthIndex === null) {
+    liqDetail.classList.add('hidden');
+    return;
+  }
+  liqDetail.classList.remove('hidden');
+
+  const workers = getWorkers();
+  const liqEmptyState = document.getElementById('liqEmptyState');
+  const liqWorkerList = document.getElementById('liqWorkerList');
+  liqEmptyState.classList.toggle('hidden', workers.length > 0);
+
+  document.getElementById('liqDetailTitle').textContent = `${MESES[liqSelectedMonthIndex]} ${liqSelectedYear}`;
+
+  const liqData = getLiquidaciones();
+  const key = liqKey(liqSelectedYear, liqSelectedMonthIndex);
+  const monthData = liqData[key] || {};
+  const firmados = workers.filter(w => monthData[w.id]).length;
+  document.getElementById('liqProgress').textContent = `${firmados} / ${workers.length} firmadas`;
+
+  liqWorkerList.innerHTML = workers.map(w => `
+    <label class="flex items-center justify-between px-6 py-3 cursor-pointer hover:bg-slate-50">
+      <div>
+        <p class="text-sm font-medium text-slate-800">${escapeHtml(w.nombre)}</p>
+        <p class="text-xs text-slate-400">${escapeHtml(w.cargo)} · ${escapeHtml(w.rut)}</p>
+      </div>
+      <input type="checkbox" data-worker="${w.id}" class="liq-checkbox w-5 h-5 rounded border-slate-300 text-brand-600 focus:ring-brand-400" ${monthData[w.id] ? 'checked' : ''}>
+    </label>
+  `).join('');
+
+  document.querySelectorAll('.liq-checkbox').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const data = getLiquidaciones();
+      const k = liqKey(liqSelectedYear, liqSelectedMonthIndex);
+      if (!data[k]) data[k] = {};
+      data[k][cb.dataset.worker] = cb.checked;
+      saveLiquidaciones(data);
+      renderLiquidacionesView();
+    });
+  });
+}
+
+function liqKey(year, monthIdx) {
+  return `${year}-${monthIdx}`;
+}
+
+function getMonthProgressLabel(monthIdx) {
+  const workers = getWorkers();
+  if (workers.length === 0) return 'Sin trabajadores';
+  const liqData = getLiquidaciones();
+  const monthData = liqData[liqKey(liqSelectedYear, monthIdx)] || {};
+  const firmados = workers.filter(w => monthData[w.id]).length;
+  return `${firmados}/${workers.length} firmadas`;
+}
+
+/* =====================================================================
+   MÓDULO 3: ESTADO DE DOCUMENTOS MENSUALES (semáforo + localStorage)
+   ===================================================================== */
+let docSelectedYear = new Date().getFullYear();
+
+function getDocumentos() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCUMENTOS) || '{}');
+}
+function saveDocumentos(data) {
+  localStorage.setItem(STORAGE_KEYS.DOCUMENTOS, JSON.stringify(data));
+}
+
+const docYearSelect = document.getElementById('docYearSelect');
+populateYearSelect(docYearSelect, docSelectedYear);
+docYearSelect.addEventListener('change', () => {
+  docSelectedYear = parseInt(docYearSelect.value, 10);
+  renderDocumentosView();
+});
+
+function renderDocumentosView() {
+  const docData = getDocumentos();
+  const docTableBody = document.getElementById('docTableBody');
+
+  docTableBody.innerHTML = MESES.map((mes, idx) => {
+    const key = `${docSelectedYear}-${idx}`;
+    const entregado = !!docData[key];
+    return `
+      <tr class="hover:bg-slate-50">
+        <td class="px-6 py-3 font-medium text-slate-800">${mes} ${docSelectedYear}</td>
+        <td class="px-6 py-3 text-slate-600">Libro de Asistencia Mensual</td>
+        <td class="px-6 py-3">
+          <button data-key="${key}" class="doc-toggle-btn flex items-center gap-2 text-sm font-medium">
+            <span class="traffic-light ${entregado ? 'bg-green-500' : 'bg-red-500'}"></span>
+            ${entregado ? 'Entregado' : 'Pendiente'}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.doc-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const data = getDocumentos();
+      const key = btn.dataset.key;
+      data[key] = !data[key];
+      saveDocumentos(data);
+      renderDocumentosView();
+    });
+  });
+}
+
+/* =====================================================================
+   INICIALIZACIÓN
+   ===================================================================== */
+function init() {
+  loadGoogleScripts();
+  renderWorkerTable();
+  setActiveView('trabajadores');
+  // Estilo inicial de botones de navegación
+  navButtons.forEach(btn => btn.classList.add('text-brand-200', 'hover:bg-brand-800'));
+  document.querySelector('[data-view="trabajadores"]').classList.add('bg-brand-700', 'text-white');
+}
+
+init();
+</script>
+</body>
+</html>
